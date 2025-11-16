@@ -1,5 +1,6 @@
 #include <iostream>
-#include "src/ACO.h"
+#include "src/solvers/ACO.h"
+#include "src/solvers/ACO_Serial.h"
 #include "src/Graph.h"
 
 int main() {
@@ -18,7 +19,7 @@ int main() {
         for (int j = 0; j < n; j++)
             graph.setDistance(i, j, d[i][j]);
 
-    ACO aco(graph, 20, 1.0, 5.0, 0.5, 100.0);
+    ACO_Serial aco(graph, 20, 1.0, 5.0, 0.5, 100.0);
 
     auto[resultTour, resultLength] = aco.run(100);
 

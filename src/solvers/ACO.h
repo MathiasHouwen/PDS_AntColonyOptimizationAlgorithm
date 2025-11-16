@@ -3,11 +3,12 @@
 
 #include <vector>
 #include <random>
-#include "Graph.h"
-#include "Ant.h"
+#include "../Graph.h"
+#include "../Ant.h"
 
+// Abstract base class
 class ACO {
-private:
+protected:
     const Graph& graph;
     int numAnts;
     double alpha;           // Influence of pheromone (tau)
@@ -20,6 +21,7 @@ private:
 
     int selectNextCity(int currentCity, const Ant& ant);
 public:
+    // Constructor
     ACO(const Graph& graph,
         int numAnts,
         double alpha,
@@ -27,11 +29,11 @@ public:
         double evaporationRate,
         double Q);
 
-    void constructSolutions();
-    void updatePheromones();
+    virtual void constructSolutions() = 0;
+    virtual void updatePheromones() = 0;
+    virtual std::pair<std::vector<int>, double> run(int iterations) = 0;
 
-    std::pair<std::vector<int>, double> run(int iterations);
+    virtual ~ACO() = default;
 };
-
 
 #endif

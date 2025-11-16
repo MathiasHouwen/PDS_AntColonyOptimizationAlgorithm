@@ -8,6 +8,9 @@ add_executable(PDS_AntColonyOptimizationAlgorithm main.cpp
         src/Graph.h
         src/ant.cpp
         src/ant.h
-        src/ACO.cpp
-        src/ACO.h
+        src/solvers/ACO.cpp
+        src/solvers/ACO.h
+        src/solvers/ACO_Serial.cpp
+        src/solvers/ACO_Serial.h
+        src/solvers/ACO_Serial.h
 )
