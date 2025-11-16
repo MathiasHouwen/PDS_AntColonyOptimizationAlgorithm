@@ -1,16 +1,31 @@
 #include <iostream>
+#include "src/ACO.h"
+#include "src/Graph.h"
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
-    // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the <b>lang</b> variable name to see how CLion can help you rename it.
-    auto lang = "C++";
-    std::cout << "Hello and welcome to " << lang << "!\n";
+    int n = 5;
+    Graph graph(n);
 
-    for (int i = 1; i <= 5; i++) {
-        // TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        std::cout << "i = " << i << std::endl;
-    }
+    double d[5][5] = {
+        {0, 2, 9, 10, 7},
+        {2, 0, 6, 4, 3},
+        {9, 6, 0, 8, 5},
+        {10, 4, 8, 0, 1},
+        {7, 3, 5, 1, 0}
+    };
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            graph.setDistance(i, j, d[i][j]);
+
+    ACO aco(graph, 20, 1.0, 5.0, 0.5, 100.0);
+
+    auto[resultTour, resultLength] = aco.run(100);
+
+    std::cout << "Best Tour: ";
+    for (int city : resultTour)
+        std::cout << city << " ";
+    std::cout << "\nLength: " << resultLength << "\n";
 
     return 0;
-    // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
 }
