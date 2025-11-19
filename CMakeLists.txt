@@ -13,4 +13,5 @@ add_executable(PDS_AntColonyOptimizationAlgorithm main.cpp
         src/solvers/ACO_Serial.cpp
         src/solvers/ACO_Serial.h
         src/solvers/ACO_Serial.h
+        src/timer.h
 )
