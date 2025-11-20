@@ -12,6 +12,7 @@
 //     {7, 3, 5, 1, 0}
 // };
 // TODO: MESCHIEN  EEN VISUALISTATIE?
+// TODO: MINIMUM op 2d opervlakte vinden (kuip ofzo bergen n-dimension)
 int main() {
     // Zorgen dat we meerden graaf grootes proberen
     for (int n : {5, 10, 20, 40, 80}) {
@@ -36,17 +37,18 @@ int main() {
             timer.stop();
 
             // Code om de oplossing te zien
-            // std::cout << "Best Tour: ";
-            // for (int city : resultTour)
-            //     std::cout << city << " ";
-            // std::cout << "\nLength: " << resultLength << "\n";
+            std::cout << "Best Tour: ";
+            for (int city : resultTour)
+                std::cout << city << " ";
+            std::cout << "\nLength: " << resultLength << "\n";
         }
 
-        timer.report();
+        // timer.report();
     }
     return 0;
 }
 
+// TODO: TIJDEN MET GROTERE GRAAF BEKIJKEN
 // EERSTE TIJDEN OP LAPTOP
 // #ACO Run Time 0.0340074 +/- 0.00300681 sec (5 measurements)
 // #ACO Run Time 0.0953628 +/- 0.00517369 sec (5 measurements)

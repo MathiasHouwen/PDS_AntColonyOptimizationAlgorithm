@@ -5,6 +5,7 @@ ACO_Serial::ACO_Serial(const Graph& graph, int numAnts, double alpha, double bet
                        double evaporationRate, double Q)
     : ACO(graph, numAnts, alpha, beta, evaporationRate, Q) {}
 
+// TODO: MEESTE NUT VOOR PARREL ZOEKEN
 void ACO_Serial::constructSolutions() {
     std::uniform_int_distribution<> dist(0, graph.size() - 1);
 
