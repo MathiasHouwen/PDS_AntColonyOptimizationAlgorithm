@@ -1,8 +1,10 @@
 #include <iostream>
 #include "src/solvers/ACO.h"
 #include "src/solvers/ACO_Serial.h"
+#include "src/solvers/ACO_Parallel.h"
 #include "src/Graph.h"
 #include "src/timer.h"
+#include "cstring"
 
 // double d[5][5] = {
 //     {0, 2, 9, 10, 7},
@@ -26,14 +28,24 @@ int main() {
         }
 
         // TODO: ONDERZOEK NAAR INVLOED VAN PARAMETERS OP TIJD
-        ACO_Serial aco(graph, 20, 1.0, 5.0, 0.5, 100.0);
+        ACO_Serial aco_serial(graph, 20, 1.0, 5.0, 0.5, 100.0);
+        ACO_Parallel aco_parallel(graph, 20, 1.0, 5.0, 0.5, 100.0);
 
-        AutoAverageTimer timer("ACO Run Time");
+        std::string serialTimerName = "ACO_Serial Run Time for " + std::to_string(n) + " nodes";
+        std::string parallelTimerName = "ACO_Parallel Run Time for " + std::to_string(n) + " nodes";
+
+        AutoAverageTimer timer_serial(serialTimerName);
+        AutoAverageTimer timer_parallel(parallelTimerName);
         // TODO: INVLOED VAN ITERATION TESTEN OP DE TIJD
+
         for (int i = 0; i < 5; i++) {            // TODO: MAGIC NUMBER TRAILS
-            timer.start();
-            auto[resultTour, resultLength] = aco.run(100);
-            timer.stop();
+            timer_serial.start();
+            auto[resultTour_serial, resultLength_serial] = aco_serial.run(100);
+            timer_serial.stop();
+
+            timer_parallel.start();
+            auto[resultTour_parallel, resultLength_parallel] = aco_parallel.run(100);
+            timer_parallel.stop();
 
             // Code om de oplossing te zien
             // std::cout << "Best Tour: ";
@@ -42,7 +54,9 @@ int main() {
             // std::cout << "\nLength: " << resultLength << "\n";
         }
 
-        timer.report();
+        timer_serial.report();
+        std::cout << std::endl;
+        timer_parallel.report();
     }
     return 0;
 }
