@@ -34,6 +34,12 @@ public:
     virtual std::pair<std::vector<int>, double> run(int iterations) = 0;
 
     virtual ~ACO() = default;
+
+    int getNumAnts() { return numAnts; }
+    double getAlpha() { return alpha; }
+    double getBeta() { return beta; }
+    double getEvaporationRate() { return evaporationRate; }
+    double getQ() { return Q; }
 };
 
 #endif

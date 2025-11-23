@@ -15,6 +15,8 @@ add_executable(PDS_AntColonyOptimizationAlgorithm main.cpp
         src/solvers/ACO_Parallel.cpp
         src/solvers/ACO_Parallel.h
         src/timer.h
+        src/output/OutputWriter.h
+        src/output/OutputWriter.cpp
 )
 
 # Voor MinGW forceer OpenMP

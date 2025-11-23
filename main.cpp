@@ -1,69 +1,65 @@
 #include <iostream>
-#include "src/solvers/ACO.h"
+#include <random>
+#include "src/Graph.h"
 #include "src/solvers/ACO_Serial.h"
 #include "src/solvers/ACO_Parallel.h"
-#include "src/Graph.h"
 #include "src/timer.h"
-#include "cstring"
+#include "src/output/OutputWriter.h"
 
-// double d[5][5] = {
-//     {0, 2, 9, 10, 7},
-//     {2, 0, 6, 4, 3},
-//     {9, 6, 0, 8, 5},
-//     {10, 4, 8, 0, 1},
-//     {7, 3, 5, 1, 0}
-// };
-// TODO: MESCHIEN  EEN VISUALISTATIE?
 int main() {
-    // Zorgen dat we meerden graaf grootes proberen
+    // Output writer
+    OutputWriter writer("results.csv");
+
+    // Probeer verschillende grafgroottes
     for (int n : {5, 10, 20, 40, 80}) {
         Graph graph(n);
         std::mt19937 rng(123);
         std::uniform_real_distribution<> dist(1.0, 10.0);
 
+        // Vul graf met random afstanden
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                graph.setDistance(i, j, (i==j ? 0 : dist(rng)));
+                graph.setDistance(i, j, (i == j ? 0.0 : dist(rng)));
             }
         }
 
-        // TODO: ONDERZOEK NAAR INVLOED VAN PARAMETERS OP TIJD
-        ACO_Serial aco_serial(graph, 20, 1.0, 5.0, 0.5, 100.0);
-        ACO_Parallel aco_parallel(graph, 20, 1.0, 5.0, 0.5, 100.0);
+        // Parameters voor ACO
+        int numAnts = 20;
+        double alpha = 1.0;
+        double beta = 5.0;
+        double evaporationRate = 0.5;
+        double Q = 100.0;
+        int iterations = 100;
 
-        std::string serialTimerName = "ACO_Serial Run Time for " + std::to_string(n) + " nodes";
-        std::string parallelTimerName = "ACO_Parallel Run Time for " + std::to_string(n) + " nodes";
-
-        AutoAverageTimer timer_serial(serialTimerName);
-        AutoAverageTimer timer_parallel(parallelTimerName);
-        // TODO: INVLOED VAN ITERATION TESTEN OP DE TIJD
-
-        for (int i = 0; i < 5; i++) {            // TODO: MAGIC NUMBER TRAILS
+        // Seriële ACO
+        ACO_Serial aco_serial(graph, numAnts, alpha, beta, evaporationRate, Q);
+        AutoAverageTimer timer_serial("ACO_Serial Run Time");
+        for (int t = 0; t < 5; t++) {
             timer_serial.start();
-            auto[resultTour_serial, resultLength_serial] = aco_serial.run(100);
+            auto[resultTour_serial, resultLength_serial] = aco_serial.run(iterations);
             timer_serial.stop();
-
-            timer_parallel.start();
-            auto[resultTour_parallel, resultLength_parallel] = aco_parallel.run(100);
-            timer_parallel.stop();
-
-            // Code om de oplossing te zien
-            // std::cout << "Best Tour: ";
-            // for (int city : resultTour)
-            //     std::cout << city << " ";
-            // std::cout << "\nLength: " << resultLength << "\n";
         }
+        timer_serial.report(std::cout);
+        double duration_serial = timer_serial.durationNanoSeconds() / 1e9; // seconden
+        writer.addResult(Result(aco_serial, duration_serial, n));
 
-        timer_serial.report();
-        std::cout << std::endl;
-        timer_parallel.report();
+        // Parallel ACO
+        ACO_Parallel aco_parallel(graph, numAnts, alpha, beta, evaporationRate, Q);
+        AutoAverageTimer timer_parallel("ACO_Parallel Run Time");
+        for (int t = 0; t < 5; t++) {
+            timer_parallel.start();
+            auto[resultTour_parallel, resultLength_parallel] = aco_parallel.run(iterations);
+            timer_parallel.stop();
+        }
+        timer_parallel.report(std::cout);
+        double duration_parallel = timer_parallel.durationNanoSeconds() / 1e9; // seconden
+        writer.addResult(Result(aco_parallel, duration_parallel, n));
+
+        std::cout << "-----------------------------\n";
     }
+
+    // Schrijf alles naar bestand in één keer
+    writer.writeAll();
+
     return 0;
 }
-
-// EERSTE TIJDEN OP LAPTOP
-// #ACO Run Time 0.0340074 +/- 0.00300681 sec (5 measurements)
-// #ACO Run Time 0.0953628 +/- 0.00517369 sec (5 measurements)
-// #ACO Run Time 0.317644 +/- 0.00709086 sec (5 measurements)
-// #ACO Run Time 1.25334 +/- 0.071986 sec (5 measurements)
-// #ACO Run Time 4.65721 +/- 0.100869 sec (5 measurements)
