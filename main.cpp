@@ -8,7 +8,7 @@
 
 int main() {
     // Output writer
-    OutputWriter writer("results.csv");
+    OutputWriter writer("../src/output/resultsSerial.csv", "../src/output/resultsParallel.csv");
 
     // Probeer verschillende grafgroottes
     for (int n : {5, 10, 20, 40, 80}) {
@@ -41,11 +41,11 @@ int main() {
         }
         timer_serial.report(std::cout);
         double duration_serial = timer_serial.durationNanoSeconds() / 1e9; // seconden
-        writer.addResult(Result(aco_serial, duration_serial, n));
+        writer.addResultSerial(Result(aco_serial, duration_serial, n));
 
         // Parallel ACO
         ACO_Parallel aco_parallel(graph, numAnts, alpha, beta, evaporationRate, Q);
-        AutoAverageTimer timer_parallel("ACO_Parallel Run Time");
+        AutoAverageTimer timer_parallel("ACO_Parallel Run Time" + std::to_string(n));
         for (int t = 0; t < 5; t++) {
             timer_parallel.start();
             auto[resultTour_parallel, resultLength_parallel] = aco_parallel.run(iterations);
@@ -53,12 +53,11 @@ int main() {
         }
         timer_parallel.report(std::cout);
         double duration_parallel = timer_parallel.durationNanoSeconds() / 1e9; // seconden
-        writer.addResult(Result(aco_parallel, duration_parallel, n));
+        writer.addResultParallel(Result(aco_parallel, duration_parallel, n));
 
         std::cout << "-----------------------------\n";
     }
 
-    // Schrijf alles naar bestand in één keer
     writer.writeAll();
 
     return 0;

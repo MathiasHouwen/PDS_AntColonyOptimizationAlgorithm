@@ -86,3 +86,16 @@ std::pair<std::vector<int>, double> ACO_Parallel::run(int iterations) {
 
     return {bestTour, bestLength};
 }
+
+//TODO: scheduler bepalen bij de parallel for
+//  achteraf bepalen?
+//  functie om de runtime scheduler in te stellen?
+
+//TODO: online test cases zoeken
+
+//TODO: env variabelen
+//  hoeveelheid threads
+//  runtime scheduler
+
+//TODO: randomness bepalen met de seed
+//  moet dezelfde output geven

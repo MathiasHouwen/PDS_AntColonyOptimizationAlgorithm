@@ -1,36 +1,43 @@
 #include "OutputWriter.h"
 #include <fstream>
 #include <iostream>
+#include <utility>
 
-OutputWriter::OutputWriter(const std::string& fileName)
-    : outputFileName(fileName)
+OutputWriter::OutputWriter(std::string  fileNameSerial, std::string  fileNameParallel)
+    : outputFileNameSerial(std::move(fileNameSerial)), outputFileNameParallel(std::move(fileNameParallel))
 { }
 
-void OutputWriter::addResult(const Result& result) {
-    buffer.push_back(result);
+void OutputWriter::addResultSerial(const Result& result) {
+    bufferSerial.push_back(result);
 }
 
-void OutputWriter::writeAll() {
-    std::ofstream ofs(outputFileName, std::ios::out); // overschrijft bestaand bestand
+void OutputWriter::addResultParallel(const Result& result) {
+    bufferParallel.push_back(result);
+}
+
+void OutputWriter::writeToFile(const std::vector<Result> &results, const std::string &fileName) {
+    std::ofstream ofs(fileName, std::ios::out); // overschrijft bestaand bestand
     if (!ofs) {
-        std::cerr << "Fout bij openen bestand: " << outputFileName << std::endl;
+        std::cerr << "Fout bij openen bestand: " << fileName << std::endl;
         return;
     }
 
-    // Schrijf header
-    ofs << "graphSize,numAnts,alpha,beta,evapRate,Q,duration(s)\n";
+    ofs << "graphSize,numAnts,alpha,beta,evaporationRate,Q,duration(s)\n";
 
-    for (const auto& r : buffer) {
+    for (const auto& r : results) {
         ofs << r.getGraphSize() << ","
             << r.getNumAnts() << ","
             << r.getAlpha() << ","
             << r.getBeta() << ","
             << r.getEvaporationRate() << ","
             << r.getQ() << ","
-            << r.getDuration()
-            << "\n";
+            << r.getDuration() << "\n";
     }
-
     ofs.close();
-    std::cout << "Alle resultaten geschreven naar " << outputFileName << std::endl;
+}
+
+
+void OutputWriter::writeAll() {
+    writeToFile(bufferSerial, outputFileNameSerial);
+    writeToFile(bufferParallel, outputFileNameParallel);
 }
