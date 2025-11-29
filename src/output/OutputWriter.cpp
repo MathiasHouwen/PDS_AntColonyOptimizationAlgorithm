@@ -40,4 +40,12 @@ void OutputWriter::writeToFile(const std::vector<Result> &results, const std::st
 void OutputWriter::writeAll() {
     writeToFile(bufferSerial, outputFileNameSerial);
     writeToFile(bufferParallel, outputFileNameParallel);
+
+    // --- Python script automatisch uitvoeren ---
+    int result = system("python ./src/output/plot.py");
+
+    if (result != 0) {
+        std::cerr << "Fout bij uitvoeren van plot.py" << std::endl;
+    }
 }
+
