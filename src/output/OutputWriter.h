@@ -18,5 +18,6 @@ public:
 
   // Schrijf alles in één keer naar bestand
   void writeAll();
-  void writeToFile(const std::vector<Result>& results, const std::string& fileName);
+
+  static void writeToFile(const std::vector<Result>& results, const std::string& fileName);
 };

@@ -16,13 +16,11 @@ void OutputWriter::addResultParallel(const Result& result) {
 }
 
 void OutputWriter::writeToFile(const std::vector<Result> &results, const std::string &fileName) {
-    std::ofstream ofs(fileName, std::ios::out); // overschrijft bestaand bestand
+    std::ofstream ofs(fileName, std::ios::app); // overschrijft bestaand bestand
     if (!ofs) {
         std::cerr << "Fout bij openen bestand: " << fileName << std::endl;
         return;
     }
-
-    ofs << "graphSize,numAnts,alpha,beta,evaporationRate,Q,duration(s)\n";
 
     for (const auto& r : results) {
         ofs << r.getGraphSize() << ","
