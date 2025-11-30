@@ -1,10 +1,21 @@
 #include <iostream>
 #include <random>
+#include <sstream>
 #include "src/Graph.h"
 #include "src/solvers/ACO_Serial.h"
 #include "src/solvers/ACO_Parallel.h"
 #include "src/timer.h"
 #include "src/output/OutputWriter.h"
+
+// Helper: vector<int> -> "a -> b -> c" string
+std::string tourToString(const std::vector<int>& tour) {
+    std::ostringstream oss;
+    for (size_t i = 0; i < tour.size(); i++) {
+        oss << tour[i];
+        if (i + 1 < tour.size()) oss << " -> ";
+    }
+    return oss.str();
+}
 
 int main(int argc, char* argv[]) {
 
@@ -20,57 +31,83 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Stel de scheduler environment variable in
-    std::string omp_sched = scheduler + ",1"; // chunk size = 1
+    // OpenMP scheduler instellen
+    std::string omp_sched = scheduler + ",1";
 #ifdef _WIN32
     _putenv_s("OMP_SCHEDULE", omp_sched.c_str());
 #else
     setenv("OMP_SCHEDULE", omp_sched.c_str(), 1);
 #endif
 
-    // Output writer
     OutputWriter writer("src/output/resultsSerial.csv", "src/output/resultsParallel.csv");
 
     for (int n : {5, 10, 20, 40, 80}) {
+
         Graph graph(n);
-        std::mt19937 rng(123); // vaste seed
+        std::mt19937 rng(123);
         std::uniform_real_distribution<> dist(1.0, 10.0);
 
-        // Vul graf met random afstanden
+        // Random graf opvullen
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 graph.setDistance(i, j, (i == j ? 0.0 : dist(rng)));
 
-        // Parameters
+        // ACO parameters
         int numAnts = 20;
         double alpha = 1.0, beta = 5.0, evaporationRate = 0.5, Q = 100.0;
         int iterations = 100;
 
-        // Seriële ACO
+        // --- Seriële ACO ---
         ACO_Serial aco_serial(graph, numAnts, alpha, beta, evaporationRate, Q);
         AutoAverageTimer timer_serial("ACO_Serial Run Time");
+
+        std::vector<int> bestTourSerial;
+        double bestLengthSerial = 1e18;
+
         for (int t = 0; t < 5; t++) {
             timer_serial.start();
-            auto[resultTour_serial, resultLength_serial] = aco_serial.run(iterations);
+            auto[resultTour, resultLength] = aco_serial.run(iterations);
             timer_serial.stop();
-        }
-        timer_serial.report(std::cout);
-        double duration_serial = timer_serial.durationNanoSeconds() / 1e9;
-        writer.addResultSerial(Result(aco_serial, duration_serial, n));
 
-        // Parallel ACO
+            // update beste resultaat
+            if (resultLength < bestLengthSerial) {
+                bestTourSerial = resultTour;
+                bestLengthSerial = resultLength;
+            }
+        }
+
+        timer_serial.report(std::cout);
+        writer.addResultSerial(Result(aco_serial, timer_serial.durationNanoSeconds() / 1e9, n));
+
+        std::cout << "\nBeste seriële route voor n=" << n << ":\n";
+        std::cout << "  " << tourToString(bestTourSerial)
+                  << " (lengte: " << bestLengthSerial << ")\n\n";
+
+        // --- Parallel ACO ---
         ACO_Parallel aco_parallel(graph, numAnts, alpha, beta, evaporationRate, Q);
         AutoAverageTimer timer_parallel("ACO_Parallel Run Time" + std::to_string(n));
+
+        std::vector<int> bestTourParallel;
+        double bestLengthParallel = 1e18;
+
         for (int t = 0; t < 5; t++) {
             timer_parallel.start();
-            auto[resultTour_parallel, resultLength_parallel] = aco_parallel.run(iterations);
+            auto[resultTour, resultLength] = aco_parallel.run(iterations);
             timer_parallel.stop();
-        }
-        timer_parallel.report(std::cout);
-        double duration_parallel = timer_parallel.durationNanoSeconds() / 1e9;
-        writer.addResultParallel(Result(aco_parallel, duration_parallel, n));
 
-        std::cout << "-----------------------------\n";
+            if (resultLength < bestLengthParallel) {
+                bestTourParallel = resultTour;
+                bestLengthParallel = resultLength;
+            }
+        }
+
+        timer_parallel.report(std::cout);
+        writer.addResultParallel(Result(aco_parallel, timer_parallel.durationNanoSeconds() / 1e9, n));
+
+        std::cout << "Beste parallelle route voor n=" << n << ":\n";
+        std::cout << "  " << tourToString(bestTourParallel)
+                  << " (lengte: " << bestLengthParallel << ")\n";
+        std::cout << "-----------------------------\n\n";
     }
 
     writer.writeAll();
