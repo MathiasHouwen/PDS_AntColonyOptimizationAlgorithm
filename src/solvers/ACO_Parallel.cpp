@@ -1,13 +1,14 @@
 #include "ACO_Parallel.h"
 #include <omp.h>
 #include <limits>
+#include <iostream>
 
 ACO_Parallel::ACO_Parallel(const Graph& graph, int numAnts, double alpha, double beta,
                            double evaporationRate, double Q, unsigned seed)
     : ACO(graph, numAnts, alpha, beta, evaporationRate, Q),
       rng(seed)
 {
-    // Geen scheduler string meer nodig; gebruik runtime
+
 }
 
 void ACO_Parallel::constructSolutions() {
@@ -24,6 +25,8 @@ void ACO_Parallel::constructSolutions() {
             int next = selectNextCity(current, ant);
             ant.visitCity(next);
         }
+        std::cout << " uitgevoerd door thread "
+              << omp_get_thread_num() << "\n";
     }
 }
 

@@ -6,6 +6,7 @@
 #include "src/timer.h"
 #include "src/output/OutputWriter.h"
 #include "./src/input/inputReader.h"
+#include <omp.h>
 
 std::string tourToString(const std::vector<int>& tour) {
     std::ostringstream oss;
@@ -18,9 +19,8 @@ std::string tourToString(const std::vector<int>& tour) {
 
 int main(int argc, char* argv[]) {
 
-    // --- Check args
-    if (argc < 2) {
-        std::cerr << "geef scheduler (static, dynamic of guided";
+    if (argc < 3) {
+        std::cerr << "Gebruik: ./prog <scheduler> <threads>\n";
         return 1;
     }
 
@@ -30,7 +30,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // --- Scheduler instellen
+    // --- Threads correct parsen
+    int threads = std::stoi(argv[2]);
+
+    // --- Scheduler instellen via OMP_SCHEDULE
     std::string omp_sched = scheduler + ",1";
 #ifdef _WIN32
     _putenv_s("OMP_SCHEDULE", omp_sched.c_str());
@@ -43,9 +46,11 @@ int main(int argc, char* argv[]) {
     Graph graph = reader.loadGraphFromFile();
     int n = graph.size();
 
-    int numAnts = 20;
+    int numAnts = threads;
+    //omp_set_num_threads(threads);
+
     double alpha = 1.0, beta = 5.0, evaporationRate = 0.5, Q = 100.0;
-    int iterations = 1000;
+    int iterations = 100;
 
     // --- Seriële ACO ---
     ACO_Serial aco_serial(graph, numAnts, alpha, beta, evaporationRate, Q);
@@ -96,3 +101,9 @@ int main(int argc, char* argv[]) {
     writer.writeAll();
     return 0;
 }
+
+/*
+ * die seed is moeilijk te realiseren aangezien elke ant dan dezelfde sequence aan random nummers zou moeten
+ * krijgen, dit zou ook niet enorm veel variatie moeten geven waardoor ik dit gwn zou laten
+ * voor wat het is.
+ */
