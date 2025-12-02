@@ -15,18 +15,16 @@ void ACO_Parallel::constructSolutions() {
     std::uniform_int_distribution<> dist(0, graph.size() - 1);
 
     #pragma omp parallel for schedule(runtime)
-    for (auto & ant : ants) {
-        ant.reset();
+    for (int i = 0; i < ants.size(); i++) {
+        ants[i].reset();
         int start = dist(rng);
-        ant.visitCity(start);
+        ants[i].visitCity(start);
 
-        while (ant.getTour().size() < graph.size()) {
-            int current = ant.getTour().back();
-            int next = selectNextCity(current, ant);
-            ant.visitCity(next);
+        while (ants[i].getTour().size() < graph.size()) {
+            int current = ants[i].getTour().back();
+            int next = selectNextCity(current, ants[i]);
+            ants[i].visitCity(next);
         }
-        std::cout << " uitgevoerd door thread "
-              << omp_get_thread_num() << "\n";
     }
 }
 
@@ -43,14 +41,14 @@ void ACO_Parallel::updatePheromones() {
     );
 
     #pragma omp parallel for schedule(runtime)
-    for (const auto & ant : ants) {
+    for (int i = 0; i < ants.size(); i++) {
         int tid = omp_get_thread_num();
-        const auto& tour = ant.getTour();
-        double contrib = Q / ant.getTourLength();
+        const auto& tour = ants[i].getTour();
+        double contrib = Q / ants[i].getTourLength();
 
-        for (int i = 0; i < tour.size() - 1; i++) {
-            int a = tour[i];
-            int b = tour[i + 1];
+        for (int j = 0; j < tour.size() - 1; j++) {
+            int a = tour[j];
+            int b = tour[j + 1];
             localPhero[tid][a * n + b] += contrib;
             localPhero[tid][b * n + a] += contrib;
         }
@@ -72,13 +70,13 @@ std::pair<std::vector<int>, double> ACO_Parallel::run(int iterations) {
         updatePheromones();
 
         #pragma omp parallel for schedule(runtime)
-        for (const auto & ant : ants) {
-            double L = ant.getTourLength();
+        for (int i = 0; i < ants.size(); i++) {
+            double L = ants[i].getTourLength();
             #pragma omp critical
             {
                 if (L < bestLength) {
                     bestLength = L;
-                    bestTour = ant.getTour();
+                    bestTour = ants[i].getTour();
                 }
             }
         }

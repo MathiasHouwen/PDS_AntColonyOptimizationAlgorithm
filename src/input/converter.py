@@ -43,7 +43,7 @@ def save_matrix(matrix, out_file):
             f.write(" ".join(str(x) for x in row) + "\n")
 
 def main():
-    tsp_file = "tcp.txt"
+    tsp_file = "tsp.txt"
     out_file = "graph.txt"
 
     coords = read_tsp_file(tsp_file)
@@ -57,5 +57,5 @@ if __name__ == "__main__":
 # input files kunnen gehaald worden van:
 # https://github.com/mastqe/tsplib/tree/master
 
-# één van die tcp files in de tcp.txt zetten en dan deze script runnen,
+# één van die tsp files in de tsp.txt zetten en dan deze script runnen,
 # hierna kan de main gerunt worden op deze test data

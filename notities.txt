@@ -1,0 +1,15 @@
+Performance Parallel:
+    - #threads = auto (= 8)
+    - #ants = 20
+    - alpha = 1.0
+    - beta = 5.0
+    - evaporationRate = 0.5
+    - Q = 100.0
+    - graphsize = 280
+    => 6.17818s
+
+    - #threads = 20 (= #ants)
+    => slechter
+
+    - for loops index based ipv for(ant : ants)
+    => beter

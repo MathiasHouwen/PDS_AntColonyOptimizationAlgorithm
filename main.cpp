@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
     int n = graph.size();
 
     int numAnts = threads;
-    //omp_set_num_threads(threads);
+    omp_set_num_threads(threads);
 
     double alpha = 1.0, beta = 5.0, evaporationRate = 0.5, Q = 100.0;
     int iterations = 100;
