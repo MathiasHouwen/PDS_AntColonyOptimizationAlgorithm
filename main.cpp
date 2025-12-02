@@ -18,7 +18,6 @@ std::string tourToString(const std::vector<int>& tour) {
 }
 
 int main(int argc, char* argv[]) {
-
     if (argc < 3) {
         std::cerr << "Gebruik: ./prog <scheduler> <threads>\n";
         return 1;
@@ -32,73 +31,48 @@ int main(int argc, char* argv[]) {
 
     // --- Threads correct parsen
     int threads = std::stoi(argv[2]);
+    OutputWriter writer("../src/output/resultsSerial.csv", "../src/output/resultsParallel.csv");
+    InputReader reader("../src/input/graph.txt");
 
-    // --- Scheduler instellen via OMP_SCHEDULE
-    std::string omp_sched = scheduler + ",1";
-#ifdef _WIN32
-    _putenv_s("OMP_SCHEDULE", omp_sched.c_str());
-#else
-    setenv("OMP_SCHEDULE", omp_sched.c_str(), 1);
-#endif
-
-    OutputWriter writer("src/output/resultsSerial.csv", "src/output/resultsParallel.csv");
-    InputReader reader("src/input/graph.txt");
     Graph graph = reader.loadGraphFromFile();
+    std::cout << "here" << std::endl;
+
     int n = graph.size();
 
     int numAnts = threads;
-    omp_set_num_threads(threads);
+    std::cout << "Using threads = " << omp_get_max_threads() << "\n";
 
-    double alpha = 1.0, beta = 5.0, evaporationRate = 0.5, Q = 100.0;
-    int iterations = 100;
+    for (int alpha = 0; alpha < 100; alpha++) {
+        for (int beta = 0; beta < 100; beta++) {
+            double evaporationRate = 0.5, Q = 100.0;
+            int iterations = 100;
 
-    // --- Seriële ACO ---
-    ACO_Serial aco_serial(graph, numAnts, alpha, beta, evaporationRate, Q);
-    AutoAverageTimer timer_serial("ACO_Serial Run Time");
+            // --- Seriële ACO ---
+            ACO_Serial aco_serial(graph, numAnts, alpha, beta, evaporationRate, Q);
+            AutoAverageTimer timer_serial("ACO_Serial Run Time");
 
-    std::vector<int> bestTourSerial;
-    double bestLengthSerial = 1e18;
+            std::vector<int> bestTourSerial;
+            double bestLengthSerial = 1e18;
+            int solution = 629;
 
-    for (int t = 0; t < 5; t++) {
-        timer_serial.start();
-        auto[resultTour, resultLength] = aco_serial.run(iterations);
-        timer_serial.stop();
-        if (resultLength < bestLengthSerial) {
-            bestTourSerial = resultTour;
-            bestLengthSerial = resultLength;
+            for (int t = 0; t < 5; t++) {
+                timer_serial.start();
+                auto[resultTour, resultLength] = aco_serial.run(iterations);
+                timer_serial.stop();
+                if (resultLength < bestLengthSerial) {
+                    bestTourSerial = resultTour;
+                    bestLengthSerial = resultLength;
+                }
+            }
+
+            writer.addResultSerial(Result(aco_serial, timer_serial.durationNanoSeconds() / 1e9, n, bestLengthSerial, solution - bestLengthSerial, solution));
+            std::cout << "\nBeste seriële route:\n";
+            std::cout << "  " << tourToString(bestTourSerial) << " Error: " << solution - bestLengthSerial
+                      << " (lengte: " << bestLengthSerial << ")\n\n";
         }
     }
-
-    writer.addResultSerial(Result(aco_serial, timer_serial.durationNanoSeconds() / 1e9, n));
-
-    std::cout << "\nBeste seriële route:\n";
-    std::cout << "  " << tourToString(bestTourSerial)
-              << " (lengte: " << bestLengthSerial << ")\n\n";
-
-    // --- Parallel ACO ---
-    ACO_Parallel aco_parallel(graph, numAnts, alpha, beta, evaporationRate, Q);
-    AutoAverageTimer timer_parallel("ACO_Parallel Run Time");
-
-    std::vector<int> bestTourParallel;
-    double bestLengthParallel = 1e18;
-
-    for (int t = 0; t < 5; t++) {
-        timer_parallel.start();
-        auto[resultTour, resultLength] = aco_parallel.run(iterations);
-        timer_parallel.stop();
-        if (resultLength < bestLengthParallel) {
-            bestTourParallel = resultTour;
-            bestLengthParallel = resultLength;
-        }
-    }
-
-    writer.addResultParallel(Result(aco_parallel, timer_parallel.durationNanoSeconds() / 1e9, n));
-
-    std::cout << "Beste parallelle route:\n";
-    std::cout << "  " << tourToString(bestTourParallel)
-              << " (lengte: " << bestLengthParallel << ")\n";
-
     writer.writeAll();
+
     return 0;
 }
 

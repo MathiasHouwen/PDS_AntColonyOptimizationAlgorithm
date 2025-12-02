@@ -29,6 +29,9 @@ void OutputWriter::writeToFile(const std::vector<Result> &results, const std::st
             << r.getBeta() << ","
             << r.getEvaporationRate() << ","
             << r.getQ() << ","
+            << r.solution_length() << ","
+            << r.error1() << ","
+            << r.goal1() << ","
             << r.getDuration() << "\n";
     }
     ofs.close();
@@ -40,10 +43,10 @@ void OutputWriter::writeAll() {
     writeToFile(bufferParallel, outputFileNameParallel);
 
     // --- Python script automatisch uitvoeren ---
-    int result = system("python ./src/output/plot.py");
+    // int result = system("python ../src/output/plot.py");
 
-    if (result != 0) {
-        std::cerr << "Fout bij uitvoeren van plot.py" << std::endl;
-    }
+    // if (result != 0) {
+    //     std::cerr << "Fout bij uitvoeren van plot.py" << std::endl;
+    // }
 }
 

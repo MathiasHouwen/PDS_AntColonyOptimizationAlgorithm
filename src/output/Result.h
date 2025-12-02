@@ -12,13 +12,16 @@ private:
     double Q;
     int graphSize;
     double duration; // runtime in seconden
+    double solutionLength;
+    int error;
+    int goal;
 
 public:
     // Constructor haalt alle parameters uit een ACO object
-    Result(ACO& aco, double durationSeconds, int graphSize)
+    Result(ACO& aco, double durationSeconds, int graphSize, double solutionLength, int error, int goal)
         : numAnts(aco.getNumAnts()), alpha(aco.getAlpha()), beta(aco.getBeta()),
           evaporationRate(aco.getEvaporationRate()), Q(aco.getQ()), graphSize(graphSize),
-          duration(durationSeconds)
+          duration(durationSeconds), solutionLength(solutionLength), error(error), goal(goal)
     {}
 
     // Getters
@@ -29,4 +32,16 @@ public:
     double getQ() const { return Q; }
     int getGraphSize() const { return graphSize; }
     double getDuration() const { return duration; }
+
+    double solution_length() const {
+        return solutionLength;
+    }
+
+    int error1() const {
+        return error;
+    }
+
+    int goal1() const {
+        return goal;
+    }
 };
