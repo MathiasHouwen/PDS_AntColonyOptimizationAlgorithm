@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
     int numAnts = threads;
     std::cout << "Using threads = " << omp_get_max_threads() << "\n";
 
-    for (int alpha = 0; alpha < 100; alpha++) {
-        for (int beta = 0; beta < 100; beta++) {
+    for (int alpha = 0; alpha < 15; alpha++) {
+        for (int beta = 0; beta < 15; beta++) {
             double evaporationRate = 0.5, Q = 100.0;
             int iterations = 100;
 
@@ -66,9 +66,9 @@ int main(int argc, char* argv[]) {
             }
 
             writer.addResultSerial(Result(aco_serial, timer_serial.durationNanoSeconds() / 1e9, n, bestLengthSerial, solution - bestLengthSerial, solution));
-            std::cout << "\nBeste seriële route:\n";
-            std::cout << "  " << tourToString(bestTourSerial) << " Error: " << solution - bestLengthSerial
-                      << " (lengte: " << bestLengthSerial << ")\n\n";
+            std::cout << "\nBeste seriele route:\n";
+            std::cout << "Alpha, beta, goal " << alpha << " " << beta << " "<< solution << " Error: " << solution - bestLengthSerial
+                      << " Lengte: " << bestLengthSerial << "\n\n";
         }
     }
     writer.writeAll();
