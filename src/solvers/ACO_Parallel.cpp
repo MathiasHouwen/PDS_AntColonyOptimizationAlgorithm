@@ -25,6 +25,7 @@ void ACO_Parallel::constructSolutions() {
             int next = selectNextCity(current, ants[i]);
             ants[i].visitCity(next);
         }
+        ants[i].visitCity(start);
     }
 }
 

@@ -1,5 +1,6 @@
 #include "ACO.h"
 #include <cmath>
+#include <iostream>
 
 ACO::ACO(const Graph& graph, int numAnts, double alpha, double beta,
          double evaporationRate, double Q)
@@ -32,14 +33,16 @@ int ACO::selectNextCity(int currentCity, const Ant& ant) {
 
     double cumulative = 0;
     for (int j = 0; j < graph.size(); j++) {
-        cumulative += probabilities[j];
-        if (r <= cumulative)
-            return j;
+        if (!ant.isVisited(j)) {
+            cumulative += probabilities[j];
+            if (r <= cumulative)
+                return j;
+        }
     }
 
     // fallback
     for (int j = 0; j < graph.size(); j++)
         if (!ant.isVisited(j)) return j;
-
+    std::cout << " Fallback failed!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     return -1;
 }
