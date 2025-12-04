@@ -2,17 +2,16 @@
 #include <limits>
 
 ACO_Serial::ACO_Serial(const Graph& graph, int numAnts, double alpha, double beta,
-                       double evaporationRate, double Q)
-    : ACO(graph, numAnts, alpha, beta, evaporationRate, Q) {}
+                       double evaporationRate, double Q, unsigned seed)
+    : ACO(graph, numAnts, alpha, beta, evaporationRate, Q, seed) {}
 
-// TODO: MEESTE NUT VOOR PARREL ZOEKEN
 void ACO_Serial::constructSolutions() {
     std::uniform_int_distribution<> dist(0, graph.size() - 1);
 
     for (auto& ant : ants) {
         ant.reset();
 
-        int start = dist(rng);
+        int start = dist(rng); // WORDT DEZE ERGENS GEDEFINEERD?
         ant.visitCity(start);
 
         while (ant.getTour().size() < graph.size()) {
@@ -20,6 +19,7 @@ void ACO_Serial::constructSolutions() {
             int next = selectNextCity(current, ant);
             ant.visitCity(next);
         }
+        ant.visitCity(start);
     }
 }
 

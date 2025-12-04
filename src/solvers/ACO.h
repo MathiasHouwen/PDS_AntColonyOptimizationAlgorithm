@@ -27,7 +27,8 @@ public:
         double alpha,
         double beta,
         double evaporationRate,
-        double Q);
+        double Q,
+        unsigned seed = std::random_device{}());
 
     virtual void constructSolutions() = 0;
     virtual void updatePheromones() = 0;

@@ -7,7 +7,7 @@
 class ACO_Serial : public ACO {
 public:
     ACO_Serial(const Graph& graph, int numAnts, double alpha, double beta,
-               double evaporationRate, double Q);
+               double evaporationRate, double Q, unsigned seed);
 
     void constructSolutions() override;
     void updatePheromones() override;

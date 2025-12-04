@@ -1,14 +1,15 @@
 #include "ACO.h"
 #include <cmath>
+#include <iostream>
 
 ACO::ACO(const Graph& graph, int numAnts, double alpha, double beta,
-         double evaporationRate, double Q)
+         double evaporationRate, double Q, unsigned seed)
     : graph(graph),
       numAnts(numAnts),
       alpha(alpha), beta(beta),
       evaporationRate(evaporationRate), Q(Q),
       pheromone(graph.size(), std::vector<double>(graph.size(), 1.0)),
-      rng(std::random_device{}())
+      rng(seed)
 {
     for (int i = 0; i < numAnts; ++i)
         ants.emplace_back(graph);
@@ -32,14 +33,16 @@ int ACO::selectNextCity(int currentCity, const Ant& ant) {
 
     double cumulative = 0;
     for (int j = 0; j < graph.size(); j++) {
-        cumulative += probabilities[j];
-        if (r <= cumulative)
-            return j;
+        if (!ant.isVisited(j)) {
+            cumulative += probabilities[j];
+            if (r <= cumulative)
+                return j;
+        }
     }
 
     // fallback
     for (int j = 0; j < graph.size(); j++)
         if (!ant.isVisited(j)) return j;
-
+    std::cout << " Fallback failed!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     return -1;
 }

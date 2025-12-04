@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
     // --- Threads correct parsen
     int threads = std::stoi(argv[2]);
-    OutputWriter writer("../src/output/resultsSerial.csv", "../src/output/resultsParallel.csv");
+    OutputWriter writer("../src/output/results.csv", "../src/output/resultsParallel.csv");
     InputReader reader("../src/input/graph.txt");
 
     Graph graph = reader.loadGraphFromFile();
@@ -44,11 +44,11 @@ int main(int argc, char* argv[]) {
 
     for (int alpha = 0; alpha < 15; alpha++) {
         for (int beta = 0; beta < 15; beta++) {
-            double evaporationRate = 0.5, Q = 100.0;
+            double evaporationRate = 0.5, Q = 803;
             int iterations = 100;
 
             // --- Seriële ACO ---
-            ACO_Serial aco_serial(graph, numAnts, alpha, beta, evaporationRate, Q);
+            ACO_Serial aco_serial(graph, numAnts, alpha, beta, evaporationRate, Q, 42); // MAGIC NUMBER SEED
             AutoAverageTimer timer_serial("ACO_Serial Run Time");
 
             std::vector<int> bestTourSerial;
@@ -65,10 +65,15 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            writer.addResultSerial(Result(aco_serial, timer_serial.durationNanoSeconds() / 1e9, n, bestLengthSerial, solution - bestLengthSerial, solution));
+            int error = solution - bestLengthSerial;
+            writer.addResultSerial(Result(aco_serial, timer_serial.durationNanoSeconds() / 1e9, n, bestLengthSerial, error, solution));
             std::cout << "\nBeste seriele route:\n";
-            std::cout << "Alpha, beta, goal " << alpha << " " << beta << " "<< solution << " Error: " << solution - bestLengthSerial
+            std::cout << "Alpha, beta, goal " << alpha << " " << beta << " "<< solution << " Error: " << error
                       << " Lengte: " << bestLengthSerial << "\n\n";
+
+            if (error > 0) {
+                std::cout << tourToString(bestTourSerial);
+            }
         }
     }
     writer.writeAll();
